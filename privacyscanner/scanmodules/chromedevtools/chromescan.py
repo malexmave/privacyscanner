@@ -228,6 +228,12 @@ class PageScanner:
                 width=1920, height=1080, screenWidth=1920, screenHeight=1080,
                 deviceScaleFactor=0, mobile=False)
 
+        # Disable JavaScript if desired
+        if options.get('common.nojs', False):
+            self._tab.Emulation.setScriptExecutionDisabled(value=True)
+        else:  # Just in case
+            self._tab.Emulation.setScriptExecutionDisabled(value=False)
+
         useragent = self._tab.Browser.getVersion()['userAgent'].replace('Headless', '')
         self._tab.Network.setUserAgentOverride(userAgent=useragent)
         self._register_network_callbacks()

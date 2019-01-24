@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from privacyscanner.scanmodules.chromedevtools.chromescan import ChromeScan
 from privacyscanner.scanmodules.chromedevtools.extractors import FinalUrlExtractor, \
     GoogleAnalyticsExtractor, CookiesExtractor, RequestsExtractor, TLSDetailsExtractor, \
@@ -22,7 +24,12 @@ EXTRACTOR_CLASSES = [FinalUrlExtractor, GoogleAnalyticsExtractor,
 
 
 def scan_site(result, logger, options, meta):
-    chrome_scan = ChromeScan(EXTRACTOR_CLASSES)
+    extractors = deepcopy(EXTRACTOR_CLASSES)
+    if options.get('common.nojs', False):
+        # If we are running without JavaScript, remove extractors that depend on it
+        extractors.remove(GoogleAnalyticsExtractor)
+        extractors.remove(JavaScriptLibsExtractor)
+    chrome_scan = ChromeScan(extractors)
     debugging_port = options.get('start_port', 9222) + meta.worker_id
     chrome_scan.scan(result, logger, options, meta, debugging_port)
 
